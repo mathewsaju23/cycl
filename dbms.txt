@@ -204,3 +204,32 @@ END IF;
 END #
 DELIMITER 
 
+nested queries
+
+1]List the name of customers who made more than 2 transactions in a week.
+ SELECT a.acc_name as "Customer Name" FROM ACCOUNT a,TRANSACTION t WHERE (WEEK(t.trans_date)=WEEKOFYEAR(t.trans_date)) AND t.acc_no=a.acc_no GROUP BY a.acc_no,t.acc_no HAVING COUNT(t.trans_type)>=2;
+ 
+2]List the name and balance of customers who made withdrawal amount more than 2500 in
+current month.
+SELECT acc_name AS 'Name',balance AS 'Balance' FROM ACCOUNT WHERE acc_no IN (SELECT T.acc_no FROM TRANSACTION T WHERE T.trans_type='debit' AND T.amount > 2500 AND MONTH(T.trans_date)=MONTH(CURRENT_DATE()));
+
+3]List the name of employee who didn’t make any transactions in current month.4
+SELECT acc_name AS 'Name' FROM ACCOUNT A WHERE A.acc_no NOT IN(SELECT T.acc_no FROM TRANSACTION T WHERE MONTH(T.trans_date)=MONTH(CURRENT_DATE()) AND YEAR(T.trans_date)=YEAR(CURRENT_DATE()));
+
+nested query1
+
+Make a new trasaction of customers who are having balance greater than 2 lakh and no
+transaction in current month.
+
+INSERT INTO TRANSACTION (trans_id,acc_no,trans_date,amount,trans_type) SELECT (FLOOR(RAND()*100)), T.acc_no,CURRENT_DATE(),5000000,'current' FROM TRANSACTION T,ACCOUNT A WHERE (YEAR(trans_date)=YEAR(CURRENT_DATE()) OR YEAR(trans_date)<>YEAR(CURRENT_DATE())) AND MONTH(trans_date)<>MONTH(CURRENT_DATE()) AND T.acc_no=A.acc_no AND A.balance>200000 GROUP BY T.acc_no,T.trans_date,A.balance;
+
+ prog2
+ 
+ Display the minimum salary of various categories of employee in various department having
+minimum salary greater than7000
+
+ 
+SELECT MIN(SALARY) AS MINIMUM_SALARY,JOB,DEPARTMENT.DNAME AS DEPARTMENT FROM EMPLOYEE,DEPARTMENT WHERE SALARY>7000 AND EMPLOYEE.DNO=DEPARTMENT.DNO GROUP BY DEPARTMENT.DNAME,JOB;
+
+Find the minimum salary of manager in various department
+SELECT MIN(E.SALARY) AS MINIMUM_SALARY,D.DNAME AS DEPARTMENT FROM EMPLOYEE E,DEPARTMENT D  WHERE E.JOB='MANAGER' AND E.DNO=D.DNO GROUP BY D.DNAME;
