@@ -1,0 +1,206 @@
+create table--CREATE TABLE student(
+student_id INT AUTO_INCREMENT,
+name VARCHAR(20) NOT NULL,
+major VARCHAR(20) UNIQUE,or DEFAULT 'undecided'
+PRIMARY KEY(student_id)
+);
+
+datatype of table--DESCRIBE student;
+view table--SELECT * FROM student;
+
+DELETE TABLE--DROP TABLE student;
+add colummn-- ALTER TABLE student ADD gpa DECIMAL(5,4);
+delete column--ALTER TABLE student DROP COLUMN gpa;
+
+insaert--INSERT INTO student  VALUES(1,'mathew','biology');
+	---INSERT INTO student(student_id,name) VALUES (2,'Kate');
+
+
+MODIFY
+
+UPDATE student
+SET major='bio'
+WHERE major='Biology';
+
+delete row
+
+DELETE  FROM student
+WHERE student_id=4;
+
+
+SELECT name,major 
+FROM student
+ORDER BY name DESC;
+
+
+SELECT * 
+FROM student
+LIMIT 2;
+
+SELECT *
+FROM student
+WHERE name IN ('CLAire','mat');
+
+foreign key
+
+CREATE TABLE branch(
+branch_id INT PRIMARY KEY,
+mgr_id INT,
+FOREIGN KEY(mgr_id) REFERENCES employee(emp_id) ON DELETE SET NULL;
+
+
+ALTER TABLE employee
+ADD FOREIGN KEY(supr_id)
+REFERENCES employee(emp_id) 
+ON DELETE SET nULL;
+
+ALTER TABLE employee
+ADD FOREIGN KEY(branch_id)
+REFERENCES branch(branch_id)
+ON DELETE SET NULL;
+
+
+to represent column name diff--AS
+
+distict
+
+SELECT DISTINCT sex
+FROm employee;
+
+SELECT COUNT(emp_id)
+FROM employee;
+
+SELECT COUNT(emp_id)
+FROM employee
+WHERE sex='F' AND BIRTHDATE>'1970-01-01';
+
+WILDCARDDS
+SELECT *
+FROM client
+
+join
+SELECT employee.emp_id,employee.firstname,branch.mgr_id
+FROM employee
+JOIN branch
+ON employee.emp_id=branch.mgr_id;
+
+
+
+
+
+
+nested
+
+
+
+
+
+SELECT employee.firstname,employee.lastname
+FROM employee
+WHERE employee.emp_id IN (
+	SELECT workswith.emp_id
+	FROM workwith
+	WHERE workswith.TOTAL_SALES>30000
+);
+
+
+
+
+
+
+SELECT clientname
+FROM client
+WHERE client.branch_id = (
+
+SELECT branchh.branch_id
+FROM branch
+WHERE branch.mgr_id=102);
+
+
+
+
+cursor bill
+
+
+DELIMITER #
+DROP PROCEDURE IF EXISTS calc_bill;
+CREATE PROCEDURE calc_bill(cust_id INT,curr_read INT)
+BEGIN
+DECLARE cunit INT;
+DECLARE ccharge INT;
+DECLARE cname VARCHAR(20);
+DECLARE last_read INT;
+DECLARE last_date DATE;
+DECLARE flag INT DEFAULT 0;
+DECLARE cur CURSOR FOR SELECT id,name,last_reading FROM elec_details WHERE id=cust_id;
+DECLARE continue handler for not found set flag =1;
+OPEN cur;
+readloop: loop
+IF(flag=1) THEN leave readloop;
+ELSE fetch cur into cust_id,cname,last_read;
+END IF;
+END loop;
+SET cunit=curr_read-last_read;
+SET ccharge=cunit*2;
+SET last_date=date_add(curdate(), INTERVAL 10 DAY);
+UPDATE elec_details SET month=MONTH(curdate()) WHERE cust_id=id;
+UPDATE elec_details SET year=YEAR(curdate()) WHERE cust_id=id;
+UPDATE elec_details SET curr_reading=curr_read WHERE cust_id=id;
+UPDATE elec_details SET unit=cunit WHERE cust_id=id;
+UPDATE elec_details SET charge=ccharge WHERE cust_id=id;
+SELECT cust_id,cname,last_date,cunit,ccharge;
+CLOSE cur;
+END #
+DELIMITER ;
+
+
+cursor mark
+
+DELIMITER #
+DROP PROCEDURE IF EXISTS calc_grade;
+CREATE PROCEDURE calc_grade(srollno INT)
+BEGIN
+DECLARE sname VARCHAR(20);
+DECLARE ssub1 INT;
+DECLARE ssub2 INT;
+DECLARE ssub3 INT;
+DECLARE ssub4 INT;
+DECLARE ssub5 INT;
+DECLARE ssub6 INT;
+DECLARE sgrade VARCHAR(3);
+DECLARE stotal INT;
+DECLARE flag INT DEFAULT 0;
+DECLARE cur CURSOR FOR SELECT rollno,name,sub1,sub2,sub3,sub4,sub5,sub6 FROM student WHERE rollno=srollno;
+DECLARE continue handler for not found set flag =1;
+OPEN cur;
+readloop: loop
+IF(flag=1) THEN leave readloop;
+ELSE fetch cur into srollno,sname,ssub1,ssub2,ssub3,ssub4,ssub5,ssub6;
+END IF;
+END loop;
+CLOSE cur;
+SET stotal=ssub1+ssub2+ssub3+ssub4+ssub5+ssub6;
+IF stotal>480 THEN SET sgrade='A';
+ELSEIF stotal>400 THEN SET sgrade='B+';
+ELSEIF stotal>360 THEN SET sgrade='B';
+ELSEIF stotal>300 THEN SET sgrade='C';
+ELSE SET sgrade='F';
+END IF;
+UPDATE student SET grade=sgrade WHERE rollno=srollno;
+SELECT srollno AS 'Roll No',sname AS 'Name',ssub1 AS 'Sub 1',ssub2 AS 'Sub 2',ssub3 AS 'Sub 3',ssub4 AS 'Sub 4',ssub5 AS 'Sub 5',ssub6 AS 'Sub 6',stotal AS 'Total',sgrade AS 'Grade';
+END #
+DELIMITER ;
+
+
+
+trigger
+
+DELIMITER #
+CREATE TRIGGER trg AFTER INSERT ON ACCOUNT FOR EACH ROW
+BEGIN
+IF NEW.TYPE  = "CREDIT" THEN update BANK set balance=balance+NEW.amount WHERE BANK.acc_no=NEW.acc_no;
+ELSEIF NEW.TYPE  = "DEBIT" THEN update BANK set balance=balance-NEW.amount WHERE BANK.acc_no=NEW.acc_no;
+END IF;
+END #
+DELIMITER 
+
