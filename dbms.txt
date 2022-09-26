@@ -202,7 +202,62 @@ IF NEW.TYPE  = "CREDIT" THEN update BANK set balance=balance+NEW.amount WHERE BA
 ELSEIF NEW.TYPE  = "DEBIT" THEN update BANK set balance=balance-NEW.amount WHERE BANK.acc_no=NEW.acc_no;
 END IF;
 END #
-DELIMITER 
+DELIMITER
+
+fibo
+
+
+DELIMITER #
+CREATE PROCEDURE fib(n int)
+BEGIN 
+DECLARE a INT;
+DECLARE b INT;
+DECLARE s INT;
+DECLARE c INT;
+SET a=0;
+SET b=1;
+SET s=0;
+SET c=0;
+CREATE TABLE fs(num int);
+IF (n=1 OR n=0) THEN INSERT INTO fs VALUES(a);
+ELSE
+INSERT INTO fs VALUES(a);
+INSERT INTO fs VALUES(b);
+WHILE c < n-2
+DO
+SET s=a+b;
+INSERT INTO fs VALUES(s);
+SET a=b;
+SET b=s;
+SET c=c+1;
+END WHILE;
+END IF;
+SELECT * FROM fs;
+DROP TABLE fs;
+END #
+
+even
+
+
+DELIMITER #
+CREATE PROCEDURE evenodd(num INT)
+BEGIN
+DECLARE COUNT INT;
+SET COUNT=0;
+CREATE TABLE even(n INT);
+CREATE TABLE odd(n INT);
+WHILE COUNT<num
+DO
+IF COUNT%2=0 THEN INSERT INTO even VALUES(COUNT);
+ELSE INSERT INTO odd VALUES (COUNT);
+END IF;
+SET COUNT=COUNT+1;
+END WHILE;
+SELECT even.n as 'Even', odd.n as 'Odd' FROM even LEFT JOIN odd On even.n+1=odd.n OR odd.n=null;
+DROP TABLE even;
+DROP TABLE odd;
+END #;
+
 
 nested queries
 
